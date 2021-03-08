@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+MAILTO=""
+* * * * * /usr/bin/php /var/www/primeadmin/bin/console payment-account:update-balances --no-debug --env=prod
+0 * * * * /usr/bin/php /var/www/primeadmin/bin/console message-broker:optimize-queue-tables --no-debug --env=prod

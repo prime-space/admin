@@ -1,0 +1,30 @@
+$loading-background-color: #3f51b5;
+$loading-spinner-color: #fff;
+
+.bold {
+  font-weight: bold;
+}
+
+a {
+  text-decoration: none;
+}
+
+.regTable {
+  display: table;
+  width: 100%;
+}
+
+.regTableRow {
+  display: table-cell;
+}
+
+.entityIteratorType__text {
+  white-space: pre;
+}
+
+.entityIteratorType__alert {
+  white-space: pre;
+  color: #ff5252;
+}
+
+@import "loading.scss";

@@ -1,0 +1,33 @@
+services:
+     App\Command\TestCommand:
+        tags:
+            - { name: 'console.command', command: 'test' }
+
+     App\Command\AbstractCommand:
+        abstract: true
+        calls:
+            - [setLogExtraDataKeeper, ['@App\Logger\LogExtraDataKeeper']]
+            - [setRepositoryProvider, ['@ewll.db.repository-provider']]
+
+     App\Command\UpdateBalancesCommand:
+        parent: App\Command\AbstractCommand
+        arguments: ['@logger', '@App\TagServiceProvider\TagServiceProvider', !tagged payment_provider, '@ewll.db.client.default', '@App\ServiceClient']
+        tags:
+            - { name: 'console.command', command: 'payment-account:update-balances' }
+            - { name: monolog.logger, channel: update_balance }
+
+     App\Command\OptimizeQueueTablesCommand:
+        parent: App\Command\AbstractCommand
+        arguments: ['@logger', '@App\MessageBroker']
+        tags:
+            - { name: 'console.command', command: 'message-broker:optimize-queue-tables' }
+
+     App\Command\EditUserAccessRuleCommand:
+        parent: App\Command\AbstractCommand
+        arguments:
+        - '@logger'
+        - '@App\AccessRule\AccessRuleProvider'
+        - '@App\AccessRule\AccessChecker'
+        tags:
+            - { name: 'console.command', command: 'user:access-rules' }
+            - { name: monolog.logger, channel: access_rules }

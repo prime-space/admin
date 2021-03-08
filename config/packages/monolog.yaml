@@ -1,0 +1,26 @@
+monolog:
+    handlers:
+        telegram_notification:
+            type: rotating_file
+            path: "%kernel.logs_dir%/telegram_notification.%kernel.environment%.log"
+            level: info
+            channels: [telegram_notification]
+            max_files: 5
+        update_balance:
+            type: rotating_file
+            path: "%kernel.logs_dir%/update_balance.%kernel.environment%.log"
+            level: info
+            channels: [update_balance]
+            max_files: 5
+        access_rules:
+            type: rotating_file
+            path: "%kernel.logs_dir%/access_rules.%kernel.environment%.log"
+            level: info
+            channels: [access_rules]
+            max_files: 5
+        api:
+            type: rotating_file
+            path: "%kernel.logs_dir%/api.%kernel.environment%.log"
+            level: info
+            channels: [api]
+            max_files: 5

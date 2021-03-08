@@ -1,0 +1,88 @@
+index:
+    path: /
+    controller: App\Controller\IndexController::index
+formView:
+    path: /formView
+    controller: App\Controller\FormController::view
+signInPage:
+    path: /signIn
+    controller: App\Controller\AuthController::signInPage
+    methods: [GET]
+signIn:
+    path: /signIn
+    controller: App\Controller\AuthController::signIn
+    methods: [POST]
+signOut:
+    path: /signOut
+    controller: App\Controller\AuthController::signOut
+accounts:
+    path: /accounts
+    controller: App\Controller\AccountController::accounts
+account:
+    path: /account/{id}
+    controller: App\Controller\AccountController::account
+    methods: [POST]
+    defaults: {id: null}
+
+api:
+    path: /api/{method}
+    controller: App\Controller\ApiController::action
+    methods: [POST]
+api.ticket.messages:
+    path: /api/ticket/{id}
+    controller: App\Controller\ApiController::action
+    methods: [GET]
+    defaults: {method: 'messages'}
+    requirements: {id: '\d+'}
+api.ticket.message:
+    path: /api/ticket/{id}/message
+    controller: App\Controller\ApiController::action
+    methods: [POST]
+    defaults: {method: 'message'}
+    requirements: {id: '\d+'}
+api.shop.toChecking:
+    path: /api/shop/{id}/toChecking
+    controller: App\Controller\ApiController::action
+    methods: [POST]
+    defaults: {method: 'toChecking'}
+    requirements: {id: '\d+'}
+api.paymentAccount.deactivate:
+    path: /api/paymentAccount/{id}/deactivate
+    controller: App\Controller\ApiController::action
+    methods: [GET]
+    defaults: {method: 'deactivatePaymentAccount'}
+    requirements: {id: '\d+'}
+
+payout.methods:
+    path: /payoutMethods
+    controller: App\Controller\PayoutController::payoutMethods
+    methods: [GET]
+tickets:
+    path: /tickets/{limit}/{pageId}
+    controller: App\Controller\TicketController::tickets
+    methods: [GET]
+    requirements: {pageId: '\d+', limit: '\d+'}
+ticket:
+    path: /ticket/{ticketId}
+    controller: App\Controller\TicketController::ticket
+    methods: [GET]
+    requirements: {ticketId: '\d+'}
+ticket.message:
+    path: /ticket/message
+    controller: App\Controller\TicketController::message
+    methods: [POST]
+ticket.responsible:
+    path: /ticket/responsible
+    controller: App\Controller\TicketController::responsible
+    methods: [POST]
+
+ability:
+    path: /ability/{serviceId}/{abilityName}/{method}
+    controller: App\Controller\AbilityController::action
+    methods: [POST, GET]
+    requirements: {serviceId: '\d+'}
+entityAbility:
+    path: /ability/{serviceId}/{abilityName}/{method}/{entityId}
+    controller: App\Controller\AbilityController::action
+    methods: [POST, GET]
+    requirements: {serviceId: '\d+', entityId: '\d+'}

@@ -1,0 +1,282 @@
+imports:
+    - { resource: services/daemon.yaml}
+    - { resource: services/command.yaml}
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+    telegram_chat_id: '%env(TELEGRAM_CHAT_ID)%'
+    telegram_bot_token: '%env(TELEGRAM_BOT_TOKEN)%'
+    domain: '%env(DOMAIN)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{Entity,Migrations,Tests,Kernel.php,Accountant.php,PaymentProvider,Constraint,Repository,Daemon,Command}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    App\Repository\:
+        resource: '../src/Repository'
+        tags: ['repositories']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    App\PaymentProvider\YandexProvider:
+        tags: ['payment_provider']
+
+    App\PaymentProvider\YandexCardProvider:
+        tags: ['payment_provider']
+
+    App\PaymentProvider\QiwiProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\WebmoneyProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\InterkassaProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\GamemoneyProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\FreekassaProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\ExchangerProvider:
+        tags: ['payment_provider']
+        arguments: []
+
+    App\PaymentProvider\MpayProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\UnitpayProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\EnfinsProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\MpayCardProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\PayeerProvider:
+        tags: ['payment_provider']
+
+    App\PaymentProvider\BitcoinProvider:
+        tags: ['payment_provider']
+        arguments: ['@GuzzleHttp\Client']
+
+    App\PaymentProvider\AdvcashProvider:
+        tags: ['payment_provider']
+        arguments: []
+
+    App\PaymentProvider\PayopProvider:
+        tags: ['payment_provider']
+        arguments: []
+
+    App\Accountant:
+        arguments: ['@ewll.db.repository-provider', !tagged payment_provider, '@form.factory', '@App\ServiceClient', '@App\TagServiceProvider\TagServiceProvider']
+
+    App\EventSubscriber\SignSubscriber:
+        arguments: ['@App\Authenticator']
+        tags: ['kernel.event_subscriber']
+
+    App\Controller\AuthController:
+        arguments: ['@App\Authenticator']
+
+    App\Controller\IndexController:
+        arguments: ['@App\Authenticator', '@ewll.db.repository-provider', '@App\ServiceViewCompiler']
+
+    App\Controller\AccountController:
+        arguments: ['@App\Accountant']
+
+    App\Controller\ApiController:
+        arguments: ['@ewll.db.repository-provider', '@App\ServiceClient', '@logger']
+        tags: [{ name: monolog.logger, channel: api }]
+
+    App\Controller\TicketController:
+        arguments: ['@ewll.db.repository-provider', '@App\ServiceClient', '@App\VueViewCompiler', '@ewll.db.client.default', '@App\Authenticator', '@App\TelegramSender', '%domain%']
+
+    App\Controller\PayoutController:
+        arguments: ['@ewll.db.repository-provider', '@App\ServiceClient']
+
+    App\Controller\AbilityController:
+        arguments:
+        - '@App\TagServiceProvider\TagServiceProvider'
+        - !tagged application
+        - '@ewll.db.repository-provider'
+        - !tagged application_ability
+
+    App\Authenticator:
+        arguments: ['@ewll.db.repository-provider', '@App\AccessRule\AccessChecker']
+
+    GuzzleHttp\Client: []
+
+    App\ServiceClient:
+        arguments:
+        - '@GuzzleHttp\Client'
+        - '@ewll.db.repository-provider'
+        - '@logger'
+        - '@ewll.db.client.default'
+        - '%domain%'
+        - '@App\TelegramSender'
+        - '%telegram_chat_id%'
+        - '@App\TagServiceProvider\TagServiceProvider'
+        - !tagged application
+
+    App\Service\ServiceClient:
+        arguments:
+            - '@GuzzleHttp\Client'
+            - '@logger'
+        tags: [{ name: monolog.logger, channel: api }]
+
+    App\MessageBroker:
+        arguments: ['@ewll.db.client.queue']
+
+    App\TelegramSender:
+       arguments: ['@App\MessageBroker', '@GuzzleHttp\Client', '%telegram_bot_token%']
+
+    App\VueViewCompiler: []
+
+    App\ServiceViewCompiler:
+        arguments:
+        - '@ewll.db.repository-provider'
+        - '@App\TagServiceProvider\TagServiceProvider'
+        - !tagged application
+        - !tagged application_ability
+        - '@App\AccessRule\ServiceAccessRule'
+        - '@App\Authenticator'
+    App\ApiViewCompiler: []
+
+    App\Application\MerchantApplication:
+        arguments: []
+        tags: ['application']
+
+    App\Application\MarketplaceApplication:
+        arguments: []
+        tags: ['application']
+
+    App\Application\Ability\FinderAbility:
+        arguments:
+        - '@form.factory'
+        - '@App\VueViewCompiler'
+        - '@App\ServiceClient'
+        - '@ewll.db.repository-provider'
+        - '@App\TagServiceProvider\TagServiceProvider'
+        - !tagged application
+        - !tagged application_ability
+        tags: ['application_ability']
+
+    App\Application\Ability\StatisticAbility:
+        arguments:
+            - '@App\ServiceClient'
+        tags: ['application_ability']
+
+    App\Application\Ability\TreeAbility:
+        arguments:
+            - '@App\Service\ServiceClient'
+        tags: ['application_ability']
+
+    App\Application\Ability\ListingAbility:
+        arguments:
+            - '@App\ServiceClient'
+        tags: ['application_ability']
+
+    App\Application\Ability\PayMethodsAbility:
+        arguments: ['@App\ServiceClient', '@form.factory', '@App\VueViewCompiler']
+        tags: ['application_ability']
+
+    App\Application\Ability\QueueAbility:
+        arguments: ['@App\ServiceClient']
+        tags: ['application_ability']
+
+    App\Application\Ability\Merchant\MerchantUserEntityAbility:
+        arguments: ['@App\ServiceClient', '@form.factory', '@App\ApiViewCompiler', '@App\VueViewCompiler']
+        tags: ['application_ability']
+
+    App\Application\Ability\Merchant\MerchantShopEntityAbility:
+        arguments: ['@App\ServiceClient', '@form.factory', '@App\ApiViewCompiler']
+        tags: ['application_ability']
+
+    App\Application\Ability\Merchant\MerchantPaymentEntityAbility:
+        arguments: ['@App\ServiceClient', '@form.factory', '@App\VueViewCompiler', '@App\Authenticator', '@App\AccessRule\ExecutePaymentAccessRule', '@App\AccessRule\RefundAccessRule', '@App\ApiViewCompiler', '@ewll.db.repository-provider']
+        tags: ['application_ability']
+
+    App\Application\Ability\Marketplace\MarketplaceProductVerificationAbility:
+        arguments: ['@App\Service\ServiceClient']
+        tags: ['application_ability']
+
+    App\Application\Ability\Marketplace\MarketplaceProductEntityAbility:
+        arguments: ['@App\Service\ServiceClient']
+        tags: ['application_ability']
+
+    App\TagServiceProvider\TagServiceProvider: []
+
+    validator.token:
+        class: App\Constraint\TokenValidator
+        arguments: ['@App\Authenticator']
+        tags: [{name: validator.constraint_validator, alias: validator.token}]
+
+    App\Logger\GlobalLogProcessor:
+        autowire: true
+        arguments: ['@App\Logger\LogExtraDataKeeper']
+        tags: [{ name: monolog.processor, method: processRecord }]
+
+    App\AccessRule\AccessRuleProvider:
+        arguments: [!tagged access_rule]
+
+    event_listener.access_rule:
+        class: App\EventListener\AccessRuleAnnotationListener
+        arguments:
+        - '@Doctrine\Common\Annotations\Reader'
+        - '@request_stack'
+        - '@App\AccessRule\AccessRuleProvider'
+        - '@App\Authenticator'
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, priority: -1 }
+
+    App\AccessRule\AccessChecker: []
+
+    App\AccessRule\DashBoardAccessRule:
+        arguments: []
+        tags: ['access_rule']
+    App\AccessRule\ServiceAccessRule:
+        arguments: ['@ewll.db.repository-provider']
+        tags: ['access_rule']
+    App\AccessRule\TicketsAccessRule:
+        arguments: []
+        tags: ['access_rule']
+    App\AccessRule\PayoutAccessRule:
+        arguments: []
+        tags: ['access_rule']
+    App\AccessRule\ExecutePaymentAccessRule:
+        arguments: []
+        tags: ['access_rule']
+    App\AccessRule\RefundAccessRule:
+        arguments: []
+        tags: ['access_rule']

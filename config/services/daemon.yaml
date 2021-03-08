@@ -1,0 +1,13 @@
+services:
+    App\Daemon\Daemon:
+        abstract: true
+        calls:
+            - [setLogExtraDataKeeper, ['@App\Logger\LogExtraDataKeeper']]
+            - [setRepositoryProvider, ['@ewll.db.repository-provider']]
+
+    App\Daemon\TelegramNotificationDaemon:
+        parent: App\Daemon\Daemon
+        arguments: ['@logger', '@App\MessageBroker', '%telegram_chat_id%', '%telegram_bot_token%', '@App\TelegramSender']
+        tags:
+            - { name: 'console.command', command: 'daemon:telegram-send-notification' }
+            - { name: monolog.logger, channel: telegram_notification }

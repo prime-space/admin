@@ -1,0 +1,70 @@
+{
+  "name": "prime-admin",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "chart.js": "^2.9.2",
+    "vue": "^2.6.10",
+    "vue-chartjs": "^3.5.0",
+    "vue-resource": "^1.5.1",
+    "vue-router": "^3.1.3",
+    "vue-snack": "^0.1.4",
+    "vuetify": "^2.1.2",
+    "vuex": "^3.1.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.9.0",
+    "@vue/cli-plugin-eslint": "^3.9.0",
+    "@vue/cli-service": "^3.9.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "node-sass": "^4.12.0",
+    "sass": "^1.17.4",
+    "sass-loader": "^7.1.0",
+    "vue-cli-plugin-vuetify": "^0.6.1",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.2.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "globals": {
+      "config": true,
+      "Main": true,
+      "isAccessDenied": true,
+      "ACCESS_RULE_ID_DASHBOARD": true,
+      "ACCESS_RULE_ID_TICKETS": true,
+      "ACCESS_RULE_ID_SERVICE": true,
+      "ACCESS_RULE_ID_PAYOUT": true,
+      "ACCESS_RULE_ID_EXECUTE_PAYMENT": true,
+      "ACCESS_RULE_ID_REFUND": true,
+      "sortByIsEnabled": true,
+      "formatMoney": true,
+      "request": true
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

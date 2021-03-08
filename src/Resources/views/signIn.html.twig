@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="app">
+        <v-app id="inspire">
+            <v-content>
+                <v-container fluid fill-height>
+                    <v-layout align-center justify-center>
+                        <v-flex xs12 sm8 md4>
+                            <v-form @submit.prevent="submit">
+                            <v-card class="elevation-12">
+                                <v-toolbar dark color="primary">
+                                    <v-toolbar-title>Sign In</v-toolbar-title>
+                                </v-toolbar>
+                                <v-card-text>
+                                        <v-text-field prepend-icon="person" name="form[login]" label="Login" type="text"></v-text-field>
+                                        <v-text-field prepend-icon="lock" name="form[password]" label="Password" id="password" type="password"></v-text-field>
+                                </v-card-text>
+                                <div><span v-for="item in info">{{ '{{ ' }}item{{ '}}' }}<br></span></div>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn type="submit" color="primary" name="form[save]">Login</v-btn>
+                                </v-card-actions>
+                            </v-card>
+                            </v-form>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+            </v-content>
+        </v-app>
+    </div>
+{% endblock %}
+
+{% block title %}PrimeAdmin | Sing In{% endblock %}
+
+{% block stylesheets %}
+    <link href="/js/vuetify-v1.3.0.min.css" rel="stylesheet">
+    <link href="/js/roboto-material.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="/js/vue-2.6.10.min.js"></script>
+    <script src="/js/vuetify-1.5.7.min.js"></script>
+    <script src="/js/auth.js"></script>
+{% endblock %}
